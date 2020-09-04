@@ -1,15 +1,21 @@
 {
-    "name": "coderius/yii2-upload-file-behavior",
-    "description": "yii2 hit counter",
+    "name": "coderius/yii2-seo-helper",
+    "description": "yii2 seo helper",
     "keywords": [
         "yii2",
         "yii2 modules",
         "yii2 extension",
-        "yii2 upload file",
-        "image",
-        "file",
-        "upload",
-        "behavior"
+        "seo",
+        "tags",
+        "optimize",
+        "search-engine-optimizatio",
+        "seo-meta",
+        "seo-tools",
+        "seo-optimization",
+        "seo-tags",
+        "helper",
+        "yii2-seo",
+        "yii2-helpers"
     ],
     "type": "yii2-extension",
     "license": "MIT",
@@ -24,7 +30,6 @@
     "require": {
         "php": ">=5.6.0",
         "yiisoft/yii2": "^2.0.0",
-        "yiisoft/yii2-imagine": "^2.2",
         "mockery/mockery": "^1.2"
    },
     "require-dev": {
@@ -32,7 +37,7 @@
     },
     "autoload": {
         "psr-4": {
-            "coderius\\yii2UploadFileBehavior\\": "src"
+            "coderius\\yii2SeoHelper\\": "src"
         }
     },
 
