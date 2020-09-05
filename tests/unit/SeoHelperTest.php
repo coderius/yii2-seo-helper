@@ -69,7 +69,7 @@ class SeoHelperTest extends \tests\TestCase
 
     
     $fb = $seo->getMetaTagsClient('facebook');
-    $fb->addTags($metaData);
+    $fb->addMetaTags($metaData);
     $this->assertEquals($fb->metaTitle, 'meta title');
     $this->assertEquals($fb->metaDesc, 'meta desc');
     $this->assertEquals($fb->metaKeywords, 'meta keywords');
@@ -88,7 +88,7 @@ class SeoHelperTest extends \tests\TestCase
 //     ];
 
 //     $seo->getMetaTagsClient('facebook')
-//         ->addTags($metaData)
+//         ->addMetaTags($metaData)
 //         ->registerInView($view);
 
 //     $expected = file_get_contents(__DIR__ . '/_data/test-counter-html.bin');  
