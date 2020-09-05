@@ -53,6 +53,15 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                     'class' => 'yii\db\Connection',
                     'dsn' => 'sqlite::memory:',
                 ],
+                'seo' => [
+                    'class' => 'coderius\yii2SeoHelper\SeoHelper',
+                    'metaTagsClients' => [
+                        'facebook' => [
+                            'class' => 'coderius\yii2SeoHelper\metaTagsClients\Facebook',
+                            'appId' => '12345656678778980'
+                        ]   
+                    ]
+                ]
             ],
         ], $config));
     }
