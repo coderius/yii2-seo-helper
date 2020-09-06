@@ -42,10 +42,11 @@ class SeoHelperTest extends \tests\TestCase
   /**
   * @dataProvider metaTagsClientsProvider
   */
-  public function testGetFacebookInPage($name, $className)
+  public function testGetFacebookMetaTagsClient($id, $className)
   {
     $seo = Instance::ensure('seo', SeoHelper::class);
-    $fb = $seo->getMetaTagsClient($name);
+    $fb = $seo->getMetaTagsClient($id);
+    
     $this->assertInstanceOf($className, $fb);
   }
 
@@ -58,21 +59,22 @@ class SeoHelperTest extends \tests\TestCase
 
   public function testSetSeoMetaTagsFacebookInPage()
   {
+    // $this->markTestSkipped('must be revisited.');
     $seo = Instance::ensure('seo', SeoHelper::class);
     $view = \Yii::$app->getView();
     $metaData = [
-        'metaTitle' => 'meta title',
-        'metaDesc' => 'meta desc',
-        'metaKeywords' => 'meta keywords',
-        'url' => 'canonical url',
+        'og:title' => 'meta title',
+        'og:description' => 'meta desc',
+        'og:type' => 'site',
+        'og:url' => 'canonical url',
     ];
 
-    
     $fb = $seo->getMetaTagsClient('facebook');
     $fb->addMetaTags($metaData);
-    $this->assertEquals($fb->metaTitle, 'meta title');
-    $this->assertEquals($fb->metaDesc, 'meta desc');
-    $this->assertEquals($fb->metaKeywords, 'meta keywords');
+
+    $this->assertEquals($fb->title, 'meta title');
+    $this->assertEquals($fb->description, 'meta desc');
+    $this->assertEquals($fb->type, 'site');
     $this->assertEquals($fb->url, 'canonical url');
   }
 

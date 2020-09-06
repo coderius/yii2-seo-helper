@@ -5,111 +5,131 @@ namespace coderius\yii2SeoHelper\metaTagsClients;
 use Yii;
 use yii\base\Component;
 use yii\base\View;
+use yii\helpers\Inflector;
+use yii\helpers\StringHelper;
+use yii\base\UnknownPropertyException;
 
 abstract class BaseMetaTagsClient extends Component{
 
-    private $_metaTitle;
-    private $_metaDesc;
-    private $_metaKeywords;
-    private $_url;
-    private $_clientPrefix = '';
+    private $_id;
+    protected $_clientPrefix = '';
+    protected $_clientMetaAttributeName = 'name';
+    protected $_clientMetaAttributeContent = 'content';
 
     /**
-     * Get the value of _metaTitle
-     */ 
-    public function getMetaTitle()
+     * Generates service name.
+     * @return string service name.
+     */
+    protected function defaultName()
     {
-        return $this->_metaTitle;
+        return Inflector::camel2id(StringHelper::basename(get_class($this)));
     }
 
     /**
-     * Set the value of _metaTitle
+     * @param string $id service id.
+     */
+    public function setId($id)
+    {
+        $this->_id = $id;
+    }
+
+    /**
+     * @return string service id
+     */
+    public function getId()
+    {
+        if (empty($this->_id)) {
+            $this->_id = $this->defaultName();
+        }
+
+        return $this->_id;
+    }
+    
+
+    /**
+     * Generate meta tags string. Examples:
+     * - site meta
+     *  `<meta name="keywords" content="react clocks">`
+     * or 
+     * - facebook meta
+     * `<meta property="og:type" content="website">`
      *
-     * @return  self
-     */ 
-    public function setMetaTitle($metaTitle)
-    {
-        $this->_metaTitle = $metaTitle;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of _metaDesc
-     */ 
-    public function getMetaDesc()
-    {
-        return $this->_metaDesc;
-    }
-
-    /**
-     * Set the value of _metaDesc
-     *
-     * @return  self
-     */ 
-    public function setMetaDesc($metaDesc)
-    {
-        $this->_metaDesc = $metaDesc;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of _metaKeywords
-     */ 
-    public function getMetaKeywords()
-    {
-        return $this->_metaKeywords;
-    }
-
-    /**
-     * Set the value of _metaKeywords
-     *
-     * @return  self
-     */ 
-    public function setMetaKeywords($metaKeywords)
-    {
-        $this->_metaKeywords = $metaKeywords;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of _url
-     */ 
-    public function getUrl()
-    {
-        return $this->_url;
-    }
-
-    /**
-     * Set the value of _url
-     *
-     * @return  self
-     */ 
-    public function setUrl($url)
-    {
-        $this->_url = $url;
-
-        return $this;
-    }
-
+     * @param array $metaData
+     * @return void
+     */
     public function addMetaTags($metaData = [])
     {
-        foreach($metaData as $prop => $value){
-            
+        foreach($metaData as $prop => $content){
+            $this->addMetaTag($prop, $content);
         }
     }
 
-    public function registerInView(View $view)
+    /**
+     * Undocumented function
+     *
+     * @param string $prop
+     * @param string $content
+     * 
+     * @return self|UnknownPropertyException
+     */
+    public function addMetaTag($prop, $content)
     {
+        $prop = $this->normalizeProp($prop);
+        $setter = 'set' . $prop;
+        if (method_exists($this, $setter)) {
+            $this->$setter($content);
+            return $this;
+        }
 
+        throw new UnknownPropertyException('Setting unknown property: ' . get_class($this) . '::' . $prop);
     }
+
+    /**
+     * Normalize prop name from string. 
+     * Example:
+     * From string like `og:type` return `type`
+     *
+     * @param string $prop
+     * @return string
+     */
+    protected function normalizeProp($prop){
+        $prefix = $this->getClientPrefix();
+        if (substr($prop, 0, strlen($prefix)) == $prefix) {
+            $prop = substr($prop, strlen($prefix));
+        }
+        
+        //find underlines and convert to uppercase next latter after underline like: some_var to SomeVar
+        $pos = strpos($prop, '_');
+        if($pos) {
+            $ar = explode("_", $prop);
+            $prop = '';
+            foreach($ar as $part){
+                $prop .= ucwords($part);
+            }
+        }
+
+        return $prop;
+    }
+
+    public function registerInView(View $view, $prop, $content, $setDefaultPrefix = true)
+    {
+        $propValue = $this->turnClientMetaAttributeValue($prop, $setDefaultPrefix);
+        Yii::$app->view->registerMetaTag([
+            $this->getClientMetaAttributeName() => $propValue, // like for facebook 'property' => 'og:type'
+            $this->getClientMetaAttributeContent() => $content, // like for facebook 'content' => 'website'
+        ], $propValue);
+    }
+
+    /**
+     * ------------------
+     * Indernal methods
+     *-------------------
+     */
 
     /**
      * Get the value of _clientPrefix
      */ 
-    public function getClientPrefix()
+    protected function getClientPrefix()
     {
         return $this->_clientPrefix;
     }
@@ -119,10 +139,40 @@ abstract class BaseMetaTagsClient extends Component{
      *
      * @return  self
      */ 
-    public function setClientPrefix($clientPrefix)
+    protected function setClientPrefix($clientPrefix)
     {
         $this->_clientPrefix = $clientPrefix;
 
         return $this;
+    }
+
+    /**
+     * Get the value of _clientMetaAttribute
+     */ 
+    protected function getClientMetaAttributeName()
+    {
+        return $this->_clientMetaAttributeName;
+    }
+
+    /**
+     * Get the value of _clientMetaAttributeContent
+     *
+     * @return  self
+     */ 
+    protected function getClientMetaAttributeContent()
+    {
+        return $this->_clientMetaAttributeContent;
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @param [type] $prop
+     * @param [type] $withDefaultPrefix
+     * @return void
+     */
+    protected function turnClientMetaAttributeValue($prop, $withDefaultPrefix)
+    {
+        return $withDefaultPrefix ? $this->getClientPrefix() . $prop : $prop;
     }
 }
