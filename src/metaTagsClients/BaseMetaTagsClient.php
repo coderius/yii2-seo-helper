@@ -12,10 +12,11 @@ use yii\base\UnknownPropertyException;
 abstract class BaseMetaTagsClient extends Component{
 
     private $_id;
-    protected $_clientPrefix = '';
+    protected $_clientPrefix = [];
     protected $_clientMetaAttributeName = 'name';
     protected $_clientMetaAttributeContent = 'content';
-
+    protected $properties = [];
+    protected $allowedProps = [];
     /**
      * Generates service name.
      * @return string service name.
@@ -62,6 +63,8 @@ abstract class BaseMetaTagsClient extends Component{
         foreach($metaData as $prop => $content){
             $this->addMetaTag($prop, $content);
         }
+
+        return $this;
     }
 
     /**
@@ -75,13 +78,27 @@ abstract class BaseMetaTagsClient extends Component{
     public function addMetaTag($prop, $content)
     {
         $prop = $this->normalizeProp($prop);
-        $setter = 'set' . $prop;
-        if (method_exists($this, $setter)) {
-            $this->$setter($content);
+        
+        if ($this->isPropAllow($prop)) {
+            $this->setProp($prop, $content);
             return $this;
         }
 
         throw new UnknownPropertyException('Setting unknown property: ' . get_class($this) . '::' . $prop);
+    }
+
+    public function getProp($prop)
+    {
+        return $this->properties[$prop];
+    }
+
+    protected function setProp($prop, $content){
+        $this->properties[$prop] = $content;
+    }
+
+    public function getProps()
+    {
+        return $this->properties;
     }
 
     /**
@@ -93,31 +110,30 @@ abstract class BaseMetaTagsClient extends Component{
      * @return string
      */
     protected function normalizeProp($prop){
-        $prefix = $this->getClientPrefix();
-        if (substr($prop, 0, strlen($prefix)) == $prefix) {
-            $prop = substr($prop, strlen($prefix));
-        }
-        
-        //find underlines and convert to uppercase next latter after underline like: some_var to SomeVar
-        $pos = strpos($prop, '_');
-        if($pos) {
-            $ar = explode("_", $prop);
-            $prop = '';
-            foreach($ar as $part){
-                $prop .= ucwords($part);
+        $prefixes = $this->getClientPrefix();
+        foreach($prefixes as $prefix){
+            if (substr($prop, 0, strlen($prefix)) == $prefix) {
+                $prop = substr($prop, strlen($prefix));
             }
         }
-
+        
         return $prop;
     }
 
-    public function registerInView(View $view, $prop, $content, $setDefaultPrefix = true)
+    public function registerInView(View $view)
     {
-        $propValue = $this->turnClientMetaAttributeValue($prop, $setDefaultPrefix);
-        Yii::$app->view->registerMetaTag([
-            $this->getClientMetaAttributeName() => $propValue, // like for facebook 'property' => 'og:type'
-            $this->getClientMetaAttributeContent() => $content, // like for facebook 'content' => 'website'
-        ], $propValue);
+        $props = $this->getProps();
+        if(is_array($props) && !empty($props)){
+            foreach($props as $prop => $content){
+                $propValue = $this->turnClientMetaAttributeValue($prop);
+                
+                Yii::$app->view->registerMetaTag([
+                    $this->getClientMetaAttributeName() => $propValue, // like for facebook 'property' => 'og:type'
+                    $this->getClientMetaAttributeContent() => $content, // like for facebook 'content' => 'website'
+                ], $propValue);
+            }
+        }
+        
     }
 
     /**
@@ -126,12 +142,28 @@ abstract class BaseMetaTagsClient extends Component{
      *-------------------
      */
 
+    protected function isPropAllow($name)
+    {
+        var_dump($this->allowedProps);
+        return in_array($name, $this->getAllowedProps());
+    }
+
     /**
      * Get the value of _clientPrefix
      */ 
     protected function getClientPrefix()
     {
         return $this->_clientPrefix;
+    }
+
+    protected function getAllowedProps()
+    {
+        return $this->allowedProps;
+    }
+
+    protected function getAllowedPropPrefix($prop)
+    {
+        return array_search($prop, $this->getAllowedProps());
     }
 
     /**
@@ -167,12 +199,12 @@ abstract class BaseMetaTagsClient extends Component{
     /**
      * Undocumented function
      *
-     * @param [type] $prop
-     * @param [type] $withDefaultPrefix
+     * @param string $prop
+     * 
      * @return void
      */
-    protected function turnClientMetaAttributeValue($prop, $withDefaultPrefix)
+    protected function turnClientMetaAttributeValue($prop)
     {
-        return $withDefaultPrefix ? $this->getClientPrefix() . $prop : $prop;
+        return $this->getAllowedPropPrefix($prop) . $prop;
     }
 }

@@ -57,8 +57,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
                     'class' => 'coderius\yii2SeoHelper\SeoHelper',
                     'metaTagsClients' => [
                         'facebook' => [
-                            'class' => 'coderius\yii2SeoHelper\metaTagsClients\Facebook',
-                            'appId' => '12345656678778980'
+                            'class' => 'coderius\yii2SeoHelper\metaTagsClients\Facebook'
                         ]   
                     ]
                 ]

@@ -1,5 +1,5 @@
 <?php
-//UploadFileBehavior
+//SeoHelperTest
 namespace tests\unit;
 
 use Yii;
@@ -13,6 +13,7 @@ use Mockery;
 use coderius\yii2SeoHelper\SeoHelper;
 use coderius\yii2SeoHelper\metaTagsClients\Facebook;
 use yii\di\Instance;
+use yii\di\Container;
 
 class SeoHelperTest extends \tests\TestCase
 {
@@ -23,14 +24,7 @@ class SeoHelperTest extends \tests\TestCase
   public static function setUpBeforeClass()
   {
       parent::setUpBeforeClass();
-
-      //
-  }
-
-  
-  public function testFirst()
-  {
-      $this->assertTrue(true);
+      
   }
 
   public function testGetSeoHelper()
@@ -56,46 +50,5 @@ class SeoHelperTest extends \tests\TestCase
           ['facebook', Facebook::class],
       ];
   }
-
-  public function testSetSeoMetaTagsFacebookInPage()
-  {
-    // $this->markTestSkipped('must be revisited.');
-    $seo = Instance::ensure('seo', SeoHelper::class);
-    $view = \Yii::$app->getView();
-    $metaData = [
-        'og:title' => 'meta title',
-        'og:description' => 'meta desc',
-        'og:type' => 'site',
-        'og:url' => 'canonical url',
-    ];
-
-    $fb = $seo->getMetaTagsClient('facebook');
-    $fb->addMetaTags($metaData);
-
-    $this->assertEquals($fb->title, 'meta title');
-    $this->assertEquals($fb->description, 'meta desc');
-    $this->assertEquals($fb->type, 'site');
-    $this->assertEquals($fb->url, 'canonical url');
-  }
-
-//   public function testRegisterSeoMetaTagsInView()
-//   {
-//     $seo = Instance::ensure('seo', SeoHelper::class);
-//     $view = \Yii::$app->getView();
-//     $metaData = [
-//         'metaTitle' => 'meta title',
-//         'metaDesc' => 'meta desc',
-//         'metaKeywords' => 'meta keywords',
-//         'url' => 'canonical url',
-//     ];
-
-//     $seo->getMetaTagsClient('facebook')
-//         ->addMetaTags($metaData)
-//         ->registerInView($view);
-
-//     $expected = file_get_contents(__DIR__ . '/_data/test-counter-html.bin');  
-//     $out = $view->render('index', $params = [], $context = null);    
-//     $this->assertEqualsWithoutLE($expected, $out);
-//   }
 
 }

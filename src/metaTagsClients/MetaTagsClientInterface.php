@@ -10,5 +10,5 @@ interface MetaTagsClientInterface
 
     public function addMetaTag($prop, $content);
 
-    public function registerInView(View $view, $prop, $content, $setDefaultPrefix = true);
+    public function registerInView(View $view);
 }    

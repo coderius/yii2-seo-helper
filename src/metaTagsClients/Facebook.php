@@ -8,140 +8,27 @@ use yii\base\Component;
 
 class Facebook extends BaseMetaTagsClient implements MetaTagsClientInterface
 {
+    
+    const PREF_OG = 'og:';
+    const PREF_FB = 'fb:';
+    
     /**
      * -------------------
      * Allowed props names
      *--------------------
+     * @see https://developers.facebook.com/docs/sharing/webmasters/#markup
      */
-    private $_app_id;
-    private $_title;
-    private $_description;
-    private $_image;
-    private $_type;
-    private $_url;
-    
-    
-    protected $_clientPrefix = 'og:';
+    protected $allowedProps = [
+        self::PREF_FB => 'app_id',
+        self::PREF_OG => 'title',
+        self::PREF_OG => 'description',
+        self::PREF_OG => 'image',
+        self::PREF_OG => 'type',
+        self::PREF_OG => 'url',
+        self::PREF_OG => 'locale'
+    ];
+
+    protected $_clientPrefix = [self::PREF_OG, self::PREF_FB];
     protected $_clientMetaAttributeName = 'property';
 
-    /**
-     * Get the value of $_app_id
-     */ 
-    public function getAppId()
-    {
-        return $this->_app_id;
-    }
-
-    /**
-     * Set the value of $_app_id
-     *
-     * @return  self
-     */ 
-    public function setAppId($appId)
-    {
-        $this->_app_id = $appId;
-
-        return $this;
-    }
-    
-
-    /**
-     * Get the value of _title
-     */ 
-    public function getTitle()
-    {
-        return $this->_title;
-    }
-
-    /**
-     * Set the value of _title
-     *
-     * @return  self
-     */ 
-    public function setTitle($title)
-    {
-        $this->_title = $title;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of _description
-     */ 
-    public function getDescription()
-    {
-        return $this->_description;
-    }
-
-    /**
-     * Set the value of _description
-     *
-     * @return  self
-     */ 
-    public function setDescription($description)
-    {
-        $this->_description = $description;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of _image
-     */ 
-    public function getImage()
-    {
-        return $this->_image;
-    }
-
-    /**
-     * Set the value of _image
-     *
-     * @return  self
-     */ 
-    public function setImage($image)
-    {
-        $this->_image = $image;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of _type
-     */ 
-    public function getType()
-    {
-        return $this->_type;
-    }
-
-    /**
-     * Set the value of _type
-     *
-     * @return  self
-     */ 
-    public function setType($type)
-    {
-        $this->_type = $type;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of _url
-     */ 
-    public function getUrl()
-    {
-        return $this->_url;
-    }
-
-    /**
-     * Set the value of _url
-     *
-     * @return  self
-     */ 
-    public function setUrl($url)
-    {
-        $this->_url = $url;
-
-        return $this;
-    }
 }
